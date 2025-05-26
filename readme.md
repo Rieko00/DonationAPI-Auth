@@ -20,7 +20,7 @@ butuh tabel sql
 
 ## ERD
 
-![ERD](img/erd.jpg)
+![ERD](img/erd_auth.jpg)
 
 Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 
