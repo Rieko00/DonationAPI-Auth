@@ -2,8 +2,8 @@ const jwt = require("jsonwebtoken");
 const db = require("../models");
 const { User } = db;
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-here";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRATION;
 
 // Generate JWT Token
 const generateToken = (payload) => {
@@ -22,55 +22,6 @@ const verifyToken = (token) => {
 };
 
 // Middleware untuk autentikasi JWT
-const authenticateToken = async (req, res, next) => {
-  try {
-    // Lazy load model untuk menghindari circular dependency
-    const { User } = require("../models");
-
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Token akses diperlukan",
-      });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(401).json({
-        success: false,
-        message: "Token tidak valid atau sudah kadaluarsa",
-      });
-    }
-
-    // Cek apakah user masih ada di database
-    const user = await User.findByPk(decoded.id);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User tidak ditemukan",
-      });
-    }
-
-    // Simpan informasi user ke request object
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      nama_lengkap: user.nama_lengkap,
-    };
-
-    next();
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error dalam verifikasi token",
-      error: error.message,
-    });
-  }
-};
 
 // Middleware untuk autorisasi berdasarkan role
 const authorizeRoles = (...roles) => {
@@ -163,7 +114,6 @@ const refreshTokenMiddleware = async (req, res, next) => {
 module.exports = {
   generateToken,
   verifyToken,
-  authenticateToken,
   authorizeRoles,
   optionalAuth,
   refreshTokenMiddleware,

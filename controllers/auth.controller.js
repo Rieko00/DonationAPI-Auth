@@ -2,7 +2,8 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const db = require("../models");
 const { User, RiwayatToken } = db;
-const { generateToken } = require("../middleware/auth.middleware");
+const { generateToken, verifyToken } = require("../middleware/auth.middleware");
+const { addAbortListener } = require("events");
 
 class AuthController {
   // Register new user
@@ -103,20 +104,74 @@ class AuthController {
         });
       }
 
-      // Generate token
+      const checkToken = await RiwayatToken.findOne({
+        where: { id_user: user.id },
+        order: [["created_at", "DESC"]],
+      });
+      // Jika ada token sebelumnya pakai token yang sama
+      if (checkToken) {
+        // Cek apakah token masih valid (misalnya 1 jam)
+        const decodedToken = verifyToken(checkToken.token);
+        if (!decodedToken) {
+          const newToken = generateToken({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          });
+
+          // Simpan riwayat token
+          await RiwayatToken.create({
+            id_user: user.id,
+            aktivitas: "Login - Create Token",
+            token: newToken,
+          });
+
+          return res.status(200).json({
+            success: true,
+            message: "Berhasil Login",
+            data: {
+              id: user.id,
+              email: user.email,
+              nama_lengkap: user.nama_lengkap,
+              telp: user.telp,
+              role: user.role,
+              token: newToken,
+            },
+          });
+        }
+
+        // Simpan riwayat token
+        await RiwayatToken.create({
+          id_user: user.id,
+          aktivitas: "Login - Get Token",
+          token: checkToken.token,
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: "Berhasil Login",
+          data: {
+            id: user.id,
+            email: user.email,
+            nama_lengkap: user.nama_lengkap,
+            telp: user.telp,
+            role: user.role,
+            token: checkToken.token, // Gunakan token yang sudah ada
+          },
+        });
+      }
+
       const token = generateToken({
         id: user.id,
         email: user.email,
         role: user.role,
       });
-
       // Simpan riwayat token
       await RiwayatToken.create({
         id_user: user.id,
         aktivitas: "Login - Create Token",
         token: token,
       });
-
       return res.status(200).json({
         success: true,
         message: "Berhasil Login",
@@ -415,24 +470,57 @@ class AuthController {
     }
   }
 
-  // Logout (protected route)
-  static async logout(req, res) {
+  // Verify token method
+  static async verifyToken(req, res) {
     try {
-      // Simpan riwayat logout
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Token akses diperlukan",
+        });
+      }
+
+      const decoded = verifyToken(token);
+      if (!decoded) {
+        return res.status(401).json({
+          success: false,
+          message: "Token tidak valid atau sudah kadaluarsa",
+        });
+      }
+
+      // Cek apakah user masih ada di database
+      const user = await User.findByPk(decoded.id);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "User tidak ditemukan",
+        });
+      }
+
       await RiwayatToken.create({
-        id_user: req.user.id,
-        aktivitas: "Logout - Token Invalidated",
-        token: req.headers.authorization?.split(" ")[1] || "unknown",
+        id_user: user.id,
+        aktivitas: "Verify Token - Access",
+        token: token,
       });
 
       return res.status(200).json({
         success: true,
-        message: "Berhasil logout",
+        message: "Token valid",
+        data: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          nama_lengkap: user.nama_lengkap,
+          telp: user.telp,
+        },
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "Error internal server",
+        message: "Error dalam verifikasi token",
         error: error.message,
       });
     }

@@ -141,7 +141,75 @@ Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 }
 ```
 
-#### 3. Lupa Password
+#### 3. Verifikasi Token
+
+- **Method:** POST
+- **Path:** `/auth/verify-token`
+- **Content-Type:** application/json
+
+##### Request Body
+
+Authorization: Bearer {token}
+
+<!-- ```json
+{
+  "email": "dermawan@gmail.com"
+}
+``` -->
+
+##### Response Success
+
+- **Status Code:** 200 OK
+- **Content-Type:** application/json
+
+```json
+{
+  "success": true,
+  "message": "Token valid",
+  "data": {
+    "id": 1,
+    "email": "dermawan@gmail.com",
+    "nama_lengkap": "Dermawan Saputra",
+    "telp": "081234567890",
+    "role": "user"
+  }
+}
+```
+
+##### Response Error
+
+- **Status Code:** 401 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Token akses diperlukan"
+}
+```
+
+- **Status Code:** 401 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Token tidak valid atau telah kedaluwarsa"
+}
+```
+
+- **Status Code:** 500 Internal Server Error
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Error saat memverifikasi token",
+  "error": ["Terjadi kesalahan pada server"]
+}
+```
+
+#### 4. Lupa Password
 
 - **Method:** POST
 - **Path:** `/auth/forgot-password`
@@ -183,7 +251,7 @@ Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 }
 ```
 
-#### 4. Verify lupa Password
+#### 5. Verify lupa Password
 
 - **Method:** PATCH
 - **Path:** `/auth/forgot-password/verify?code={unique code}`
@@ -225,7 +293,7 @@ Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 }
 ```
 
-#### 5. Menambah Riwayat token baru
+#### 6. Menambah Riwayat token baru
 
 - **Method:** POST
 - **Path:** `/auth/riwayat-token`

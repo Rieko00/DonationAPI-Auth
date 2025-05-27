@@ -6,6 +6,7 @@ const { validateRegister, validateLogin, validateForgotPassword, validateVerifyF
 // Auth routes
 router.post("/register", validateRegister, authController.register);
 router.post("/login", validateLogin, authController.login);
+router.post("/verify-token", authController.verifyToken);
 router.post("/forgot-password", validateForgotPassword, authController.forgotPassword);
 router.patch("/forgot-password/verify", validateCodeQuery, validateVerifyForgotPassword, authController.verifyForgotPassword);
 
