@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/auth.controller");
-const { validateRegister, validateLogin } = require("../middleware/validation.middleware");
+const { validateRegister, validateLogin, validateForgotPassword, validateVerifyForgotPassword, validateRiwayatToken, validateCodeQuery } = require("../middleware/validation.middleware");
 
+// Auth routes
 router.post("/register", validateRegister, authController.register);
 router.post("/login", validateLogin, authController.login);
-router.post("/riwayat-token", authController.riwayatToken);
+router.post("/forgot-password", validateForgotPassword, authController.forgotPassword);
+router.patch("/forgot-password/verify", validateCodeQuery, validateVerifyForgotPassword, authController.verifyForgotPassword);
+
+// Token routes
+router.post("/riwayat-token", validateRiwayatToken, authController.createRiwayatToken);
 
 module.exports = router;

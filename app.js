@@ -8,14 +8,6 @@ const app = express();
 const db = require("./models");
 const authRoutes = require("./routes/auth.routes");
 
-// let swaggerDocument;
-// try {
-//   swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, "./swagger.yaml"), "utf8"));
-// } catch (error) {
-//   console.error("Error loading swagger.yaml:", error);
-//   swaggerDocument = {};
-// }
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,15 +16,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Auth API." });
 });
 
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "/Views/landing.html"));
-// });
-// app.get("/api-docs", (req, res) => {
-//   res.sendFile(path.join(__dirname, "/docs/index.html"));
-// });
-// app.get("/swagger.yaml", (req, res) => {
-//   res.sendFile(path.join(__dirname, "/docs/swagger.yaml"));
-// });
+app.use("/auth", authRoutes);
 
 // Setup for both local development and Vercel
 if (process.env.NODE_ENV !== "production") {

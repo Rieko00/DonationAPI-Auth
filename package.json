@@ -1,10 +1,62 @@
 {
+  "name": "donation-api-auth",
+  "version": "1.0.0",
+  "description": "Authentication API for Donation Application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "node test-models.js",
+    "db:sync": "node -e \"require('./models').sequelize.sync({force: true}).then(() => console.log('Database synced')).catch(err => console.error(err))\"",
+    "db:migrate": "node -e \"require('./models').sequelize.sync().then(() => console.log('Database migrated')).catch(err => console.error(err))\"",
+    "postinstall": "echo 'Setup complete. Copy .env.example to .env and configure your database credentials.'"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "sequelize",
+    "mysql",
+    "authentication",
+    "jwt",
+    "api",
+    "donation"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/donation-api-auth.git"
+  },
   "dependencies": {
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules/",
+      "*.log"
+    ],
+    "watch": [
+      "app.js",
+      "routes/",
+      "controllers/",
+      "middleware/",
+      "models/",
+      "config/"
+    ],
+    "ext": "js,json"
   }
 }
