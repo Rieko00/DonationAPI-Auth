@@ -143,7 +143,7 @@ Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 
 #### 3. Verifikasi Token
 
-- **Method:** POST
+- **Method:** GET
 - **Path:** `/auth/verify-token`
 - **Content-Type:** application/json
 
