@@ -7,7 +7,7 @@ API ini adalah auth untuk project aplikasi Donation
 ## Base URL
 
 ```text
-Pending
+https://donation-api-auth.vercel.app/
 ```
 
 ## Database Schema
