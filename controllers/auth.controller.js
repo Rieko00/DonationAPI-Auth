@@ -417,58 +417,6 @@ class AuthController {
     }
   }
 
-  // Update user profile (protected route)
-  static async updateProfile(req, res) {
-    try {
-      const updateData = req.body;
-      const userId = req.user.id;
-
-      // Jika ada perubahan email, cek uniqueness
-      if (updateData.email) {
-        const existingUser = await User.findOne({
-          where: {
-            email: updateData.email,
-            id: { [db.Sequelize.Op.ne]: userId },
-          },
-        });
-
-        if (existingUser) {
-          return res.status(400).json({
-            success: false,
-            message: "Email sudah digunakan oleh user lain",
-          });
-        }
-      }
-
-      await User.update(updateData, {
-        where: { id: userId },
-        individualHooks: true,
-      });
-
-      const updatedUser = await User.findByPk(userId);
-
-      return res.status(200).json({
-        success: true,
-        message: "Profil berhasil diperbarui",
-        data: updatedUser,
-      });
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({
-          success: false,
-          message: "Data update tidak valid",
-          errors: errors,
-        });
-      }
-
-      return res.status(500).json({
-        success: false,
-        message: "Error internal server",
-        error: error.message,
-      });
-    }
-  }
 
   // Verify token method
   static async verifyToken(req, res) {
