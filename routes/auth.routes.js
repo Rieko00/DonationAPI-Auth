@@ -9,8 +9,8 @@ const { authenticateToken, validateUpdateProfile } = require("../middleware/auth
 router.post("/register", validateRegister, authController.register);
 router.post("/login", validateLogin, authController.login);
 router.get("/verify-token", authController.verifyToken);
-router.post("/forgot-password", validateForgotPassword, authController.forgotPassword);
-router.patch("/forgot-password/verify", validateCodeQuery, validateVerifyForgotPassword, authController.verifyForgotPassword);
+router.post("/reset-password", validateForgotPassword, authController.forgotPassword);
+router.patch("/reset-password/verify/:token", validateVerifyForgotPassword, authController.verifyForgotPassword);
 router.patch("/profile/update", authenticateToken, validateUpdateProfile, profileController.updateProfile);
 
 // Token routes

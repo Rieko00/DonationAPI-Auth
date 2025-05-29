@@ -209,10 +209,10 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 4. Lupa Password
+#### 4. Reset Password
 
 - **Method:** POST
-- **Path:** `/auth/forgot-password`
+- **Path:** `/auth/reset-password`
 - **Content-Type:** application/json
 
 ##### Request Body
@@ -251,10 +251,10 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 5. Verify lupa Password
+#### 5. Verify Reset Password
 
 - **Method:** PATCH
-- **Path:** `/auth/forgot-password/verify?code={unique code}`
+- **Path:** `/auth/reset-password/verify/{Token}`
 - **Content-Type:** application/json
 
 ##### Request Body

@@ -89,110 +89,43 @@ const authorizeRoles = (...roles) => {
   };
 };
 
-// Middleware untuk optional authentication (tidak wajib login)
-const optionalAuth = async (req, res, next) => {
-  try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-
-    if (token) {
-      const decoded = verifyToken(token);
-      if (decoded) {
-        const user = await User.findByPk(decoded.id);
-        if (user) {
-          req.user = {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            nama_lengkap: user.nama_lengkap,
-          };
-        }
-      }
-    }
-
-    next();
-  } catch (error) {
-    // Jika ada error, tetap lanjutkan tanpa user info
-    next();
-  }
-};
-
-// Middleware untuk refresh token
-const refreshTokenMiddleware = async (req, res, next) => {
-  try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res.status(401).json({
-        success: false,
-        message: "Refresh token diperlukan",
-      });
-    }
-
-    const decoded = verifyToken(refreshToken);
-    if (!decoded) {
-      return res.status(401).json({
-        success: false,
-        message: "Refresh token tidak valid",
-      });
-    }
-
-    const user = await User.findByPk(decoded.id);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User tidak ditemukan",
-      });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error dalam verifikasi refresh token",
-      error: error.message,
-    });
-  }
-};
-
 // Middleware untuk validasi update profile
 const validateUpdateProfile = (req, res, next) => {
-  const allowedFields = ['nama_lengkap', 'telp', 'email'];
+  const allowedFields = ["nama_lengkap", "telp", "email"];
   const updateFields = Object.keys(req.body);
-  
+
   // Cek apakah ada field yang tidak diizinkan
-  const invalidFields = updateFields.filter(field => !allowedFields.includes(field));
-  
+  const invalidFields = updateFields.filter((field) => !allowedFields.includes(field));
+
   if (invalidFields.length > 0) {
     return res.status(400).json({
       success: false,
-      message: `Field tidak diizinkan: ${invalidFields.join(', ')}`
+      message: `Field tidak diizinkan: ${invalidFields.join(", ")}`,
     });
   }
-  
+
   // Validasi email format jika ada
   if (req.body.email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(req.body.email)) {
       return res.status(400).json({
         success: false,
-        message: "Format email tidak valid"
+        message: "Format email tidak valid",
       });
     }
   }
-  
+
   // Validasi telp jika ada
   if (req.body.telp) {
     const phoneRegex = /^[0-9+\-\s()]+$/;
     if (!phoneRegex.test(req.body.telp)) {
       return res.status(400).json({
         success: false,
-        message: "Format nomor telepon tidak valid"
+        message: "Format nomor telepon tidak valid",
       });
     }
   }
-  
+
   next();
 };
 
@@ -202,8 +135,6 @@ module.exports = {
   generateToken,
   verifyToken,
   authorizeRoles,
-  optionalAuth,
-  refreshTokenMiddleware,
   JWT_SECRET,
   JWT_EXPIRES_IN,
 };

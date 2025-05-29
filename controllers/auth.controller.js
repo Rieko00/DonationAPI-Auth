@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const db = require("../models");
 const { User, RiwayatToken } = db;
 const { generateToken, verifyToken } = require("../middleware/auth.middleware");
-const { addAbortListener } = require("events");
+const sendEmail = require("../utils/sendEmail");
 
 class AuthController {
   // Register new user
@@ -216,27 +216,51 @@ class AuthController {
         });
       }
 
+      // Cek apakah ada riwayat token sebelumnya
+      const existingToken = await RiwayatToken.findOne({
+        where: {
+          id_user: user.id,
+          aktivitas: {
+            [db.Sequelize.Op.like]: "Forgot Password - Reset Password Code",
+          },
+        },
+        order: [["created_at", "DESC"]],
+      });
+      if (existingToken) {
+        // Jika ada, cek apakah token masih valid (misalnya 15 menit)
+        const codeAge = Date.now() - new Date(existingToken.created_at).getTime();
+        const fifteenMinutes = 15 * 60 * 1000; // 15 menit
+        if (codeAge < fifteenMinutes) {
+          return res.status(400).json({
+            success: false,
+            message: "Anda sudah mengirim permintaan ubah password sebelumnya. Silakan tunggu 15 menit sebelum mencoba lagi.",
+          });
+        }
+      }
+
       // Generate unique code untuk reset password
       const resetCode = crypto.randomBytes(32).toString("hex");
 
       // Simpan code ke riwayat token (bisa juga buat tabel terpisah)
       await RiwayatToken.create({
         id_user: user.id,
-        aktivitas: `Forgot Password - Reset Code: ${resetCode}`,
+        aktivitas: `Forgot Password - Reset Password Code`,
         token: resetCode,
       });
 
-      // TODO: Kirim email dengan reset code
-      // Untuk sementara hanya return response
+      const resetLink = `${process.env.RESET_URL}/auth/reset-password/verify/${resetCode}`;
+      // Kirim email dengan link reset password
+      await sendEmail({
+        to: user.email,
+        subject: "Permintaan Ubah Password",
+        text: `Anda telah meminta untuk mengubah password. Silakan klik link berikut untuk mengatur ulang password Anda:\n\n${resetLink}\n\n Link berlaku selama 15 menit.`,
+      });
 
       return res.status(200).json({
         success: true,
         message: "Request ubah password berhasil, silahkan cek email anda",
         data: {
           email: user.email,
-          // Untuk development, tampilkan code
-          // Hapus ini di production
-          resetCode: resetCode,
         },
       });
     } catch (error) {
@@ -260,7 +284,7 @@ class AuthController {
   // Verify forgot password
   static async verifyForgotPassword(req, res) {
     try {
-      const { code } = req.query;
+      const { token: code } = req.params;
       const { password } = req.body;
 
       if (!code) {
@@ -275,7 +299,7 @@ class AuthController {
         where: {
           token: code,
           aktivitas: {
-            [db.Sequelize.Op.like]: "Forgot Password - Reset Code:%",
+            [db.Sequelize.Op.like]: "Forgot Password - Reset Password Code",
           },
         },
         include: [
@@ -296,9 +320,9 @@ class AuthController {
 
       // Cek apakah code masih valid (misalnya 1 jam)
       const codeAge = Date.now() - new Date(tokenHistory.created_at).getTime();
-      const oneHour = 60 * 60 * 1000; // 1 jam dalam milliseconds
+      const fifteenMinutes = 15 * 60 * 1000; // 15 menit
 
-      if (codeAge > oneHour) {
+      if (codeAge > fifteenMinutes) {
         return res.status(400).json({
           success: false,
           message: "Code verifikasi sudah kadaluarsa",
@@ -314,7 +338,15 @@ class AuthController {
         }
       );
 
-      // Hapus atau mark sebagai used
+      await RiwayatToken.update(
+        { aktivitas: "Password Reset - Reset Passwoord Code Used" },
+        {
+          where: { id: tokenHistory.id },
+          individualHooks: true,
+        }
+      );
+
+      // Simpan riwayat token untuk reset password
       await RiwayatToken.create({
         id_user: tokenHistory.id_user,
         aktivitas: "Password Reset - Completed",
@@ -416,7 +448,6 @@ class AuthController {
       });
     }
   }
-
 
   // Verify token method
   static async verifyToken(req, res) {
