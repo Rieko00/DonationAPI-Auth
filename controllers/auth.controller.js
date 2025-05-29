@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const db = require("../models");
 const { User, RiwayatToken } = db;
-const { generateToken, verifyToken } = require("../middleware/auth.middleware");
+const { generateToken, verifyToken, authorizeRoles } = require("../middleware/auth.middleware");
 const sendEmail = require("../utils/sendEmail");
 
 class AuthController {
@@ -500,6 +500,48 @@ class AuthController {
       return res.status(500).json({
         success: false,
         message: "Error dalam verifikasi token",
+        error: error.message,
+      });
+    }
+  }
+
+  static async getRiwayatToken(req, res) {
+    try {
+      const { id_user } = req.params;
+
+      if (!id_user) {
+        const riwayatTokens = await RiwayatToken.findAll({
+          order: [["created_at", "DESC"]],
+        });
+        return res.status(200).json({
+          success: true,
+          message: "Riwayat token berhasil diambil",
+          data: riwayatTokens,
+        });
+      }
+
+      const user = await User.findByPk(id_user);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User tidak ditemukan",
+        });
+      }
+
+      const riwayatTokens = await RiwayatToken.findAll({
+        where: { id_user },
+        order: [["created_at", "DESC"]],
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Riwayat token berhasil diambil",
+        data: riwayatTokens,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error internal server",
         error: error.message,
       });
     }

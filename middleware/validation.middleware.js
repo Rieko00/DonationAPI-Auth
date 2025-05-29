@@ -32,8 +32,8 @@ const registerSchema = Joi.object({
       "string.max": "Nomor telepon maksimal 15 digit",
       "any.required": "Nomor telepon harus diisi",
     }),
-  role: Joi.string().valid("user", "volunteer").default("user").messages({
-    "any.only": "Role harus berupa user atau volunteer",
+  role: Joi.string().valid("user", "volunteer", "admin").default("user").messages({
+    "any.only": "Role harus berupa user, volunteer, atau admin",
   }),
 });
 

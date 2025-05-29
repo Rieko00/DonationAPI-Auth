@@ -47,7 +47,7 @@ Dari gambar database diatas, sistem auth terdiri dari beberapa tabel utama:
 }
 ```
 
-- **Role:** "user" / "volunteer"
+- **Role:** "user" / "volunteer" / "admin"
 
 ##### Response Success
 
@@ -293,9 +293,9 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 6. Menambah Riwayat token baru
+#### 6. Mendapatkan Riwayat penggunaan Token
 
-- **Method:** POST
+- **Method:** GET
 - **Path:** `/auth/riwayat-token`
 - **Content-Type:** application/json
 
