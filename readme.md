@@ -464,8 +464,8 @@ Content-Type: application/json
 
 ```json
 {
-  "oldPassword": "dermawan123",
-  "newPassword": "dermawan001"
+  "old_password": "dermawan123",
+  "new_password": "dermawan001"
 }
 ```
 
@@ -490,6 +490,27 @@ Content-Type: application/json
 {
   "success": false,
   "message": "Token akses diperlukan"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Data input tidak valid",
+  "errors": ["Password lama harus diisi", "Password baru harus diisi"]
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "kata sandi lama tidak sesuai"
 }
 ```
 

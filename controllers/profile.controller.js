@@ -59,7 +59,7 @@ class profileController {
 
   static async updatePassword(req, res) {
     try {
-      const { oldPassword, newPassword } = req.body;
+      const { old_password, new_password } = req.body;
       const userId = req.user.id;
 
       const user = await User.findByPk(userId);
@@ -70,7 +70,7 @@ class profileController {
         });
       }
 
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      const isMatch = await bcrypt.compare(old_password, user.password);
       if (!isMatch) {
         return res.status(400).json({
           success: false,
@@ -79,7 +79,7 @@ class profileController {
       }
 
       await User.update(
-        { password: newPassword },
+        { password: new_password },
         {
           where: { id: userId },
           individualHooks: true,
