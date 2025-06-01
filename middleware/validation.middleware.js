@@ -69,6 +69,21 @@ const verifyForgotPasswordSchema = Joi.object({
   }),
 });
 
+const verifyChangePasswordSchema = Joi.object({
+  old_password: Joi.string().min(6).max(255).required().messages({
+    "string.empty": "Password lama harus diisi",
+    "string.min": "Password lama minimal 6 karakter",
+    "string.max": "Password lama maksimal 255 karakter",
+    "any.required": "Password lama harus diisi",
+  }),
+  new_password: Joi.string().min(6).max(255).required().messages({
+    "string.empty": "Password baru harus diisi",
+    "string.min": "Password baru minimal 6 karakter",
+    "string.max": "Password baru maksimal 255 karakter",
+    "any.required": "Password baru harus diisi",
+  }),
+});
+
 // Schema validasi untuk riwayat token
 const riwayatTokenSchema = Joi.object({
   id_user: Joi.number().integer().positive().required().messages({
@@ -218,6 +233,7 @@ module.exports = {
   updateUserSchema,
   idParamSchema,
   codeQuerySchema,
+  verifyChangePasswordSchema,
 
   // Middleware exports
   validate,
@@ -233,4 +249,5 @@ module.exports = {
   validateUpdateUser: validate(updateUserSchema),
   validateIdParam: validateParams(idParamSchema),
   validateCodeQuery: validateQuery(codeQuerySchema),
+  validateVerifyChangePassword: validate(verifyChangePasswordSchema),
 };

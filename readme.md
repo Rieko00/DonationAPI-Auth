@@ -446,6 +446,73 @@ Content-Type: application/json
 }
 ```
 
+#### 8. Update profile user password
+
+- **Method:** PATCH
+- **Path:** `/auth/profile/update-password`
+- **Content-Type:** application/json
+- **Authorization:** Bearer Token (Required)
+
+##### Request Headers
+
+```
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+```
+
+##### Request Body
+
+```json
+{
+  "oldPassword": "dermawan123",
+  "newPassword": "dermawan001"
+}
+```
+
+##### Response Success
+
+- **Status Code:** 200 OK
+- **Content-Type:** application/json
+
+```json
+{
+  "success": true,
+  "message": "Password berhasil diperbarui"
+}
+```
+
+##### Response Error
+
+- **Status Code:** 401 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Token akses diperlukan"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "kata sandi lama tidak sesuai"
+}
+```
+
+- **Status Code:** 404 Not Found
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "User tidak ditemukan"
+}
+```
+
 ## Status Kode
 
 | Status Code | Description                                              |

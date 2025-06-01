@@ -4,7 +4,7 @@ const db = require("../models");
 const { User, RiwayatToken } = db;
 const { generateToken, verifyToken } = require("../middleware/auth.middleware");
 
-class profileController {  
+class profileController {
   static async updateProfile(req, res) {
     try {
       const updateData = req.body;
@@ -56,6 +56,48 @@ class profileController {
       });
     }
   }
-} // ✅ FIXED: Tambah closing bracket untuk class
+
+  static async updatePassword(req, res) {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const userId = req.user.id;
+
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User tidak ditemukan",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Kata sandi lama tidak cocok",
+        });
+      }
+
+      await User.update(
+        { password: newPassword },
+        {
+          where: { id: userId },
+          individualHooks: true,
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Kata sandi berhasil diperbarui",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error internal server",
+        error: error.message,
+      });
+    }
+  }
+}
 
 module.exports = profileController;
