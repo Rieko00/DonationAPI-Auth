@@ -254,7 +254,7 @@ Authorization: Bearer {token}
 #### 5. Verify Reset Password
 
 - **Method:** PATCH
-- **Path:** `/auth/reset-password/verify/{Token}`
+- **Path:** `/forgot-password/submit/new-password/{Token}`
 - **Content-Type:** application/json
 
 ##### Request Body
