@@ -248,7 +248,7 @@ class AuthController {
         token: resetCode,
       });
 
-      const resetLink = `${process.env.RESET_URL}/auth/reset-password/verify/${resetCode}`;
+      const resetLink = `${process.env.RESET_URL}/forgot-password/submit/new-password/${resetCode}`;
       // Kirim email dengan link reset password
       await sendEmail({
         to: user.email,
