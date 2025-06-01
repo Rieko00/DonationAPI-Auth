@@ -337,6 +337,115 @@ Authorization: Bearer {token}
 }
 ```
 
+#### 7. Update Profile User
+
+- **Method:** PATCH
+- **Path:** `/auth/profile/update`
+- **Content-Type:** application/json
+- **Authorization:** Bearer Token (Required)
+
+##### Request Headers
+
+```
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+```
+
+##### Request Body
+
+```json
+{
+  "nama_lengkap": "Dermawan Saputra Updated",
+  "telp": "081234567899",
+  "email": "dermawan.updated@gmail.com"
+}
+```
+
+**Note:** Semua field bersifat opsional. Anda dapat mengupdate satu atau beberapa field sekaligus.
+
+##### Response Success
+
+- **Status Code:** 200 OK
+- **Content-Type:** application/json
+
+```json
+{
+  "success": true,
+  "message": "Profil berhasil diperbarui",
+  "data": {
+    "id": 1,
+    "email": "dermawan.updated@gmail.com",
+    "role": "user",
+    "nama_lengkap": "Dermawan Saputra Updated",
+    "telp": "081234567899",
+    "createdAt": "2025-05-20T14:30:00.000Z",
+    "updatedAt": "2025-05-30T10:15:00.000Z"
+  }
+}
+```
+
+##### Response Error
+
+- **Status Code:** 401 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Token akses diperlukan"
+}
+```
+
+- **Status Code:** 401 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Token tidak valid atau telah kedaluwarsa"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Email sudah digunakan oleh user lain"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Format email tidak valid"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Format nomor telepon tidak valid"
+}
+```
+
+- **Status Code:** 400 Bad Request
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Field tidak diizinkan: password, role"
+}
+```
+
 ## Status Kode
 
 | Status Code | Description                                              |
