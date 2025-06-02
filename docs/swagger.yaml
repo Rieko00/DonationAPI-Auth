@@ -1,0 +1,704 @@
+openapi: 3.0.0
+info:
+  title: Donation API - Authentication Service
+  description: |
+    API autentikasi untuk aplikasi Donation. Menyediakan layanan registrasi, login, verifikasi token, reset password, dan manajemen profil user.
+
+    ## Base URL
+    ```
+    https://donation-api-auth.vercel.app/
+    ```
+
+    ## Authentication
+    API ini menggunakan JWT (JSON Web Token) untuk autentikasi. Token harus disertakan dalam header Authorization dengan format:
+    ```
+    Authorization: Bearer {JWT_TOKEN}
+    ```
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@donationapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://donation-api-auth.vercel.app
+    description: Production server
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registrasi akun baru
+      description: Membuat akun pengguna baru dengan role user, volunteer, atau admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              user_example:
+                summary: Registrasi sebagai user
+                value:
+                  email: "dermawan@gmail.com"
+                  password: "dermawan123"
+                  nama_lengkap: "Dermawan Saputra"
+                  telp: "081234567890"
+                  role: "user"
+              volunteer_example:
+                summary: Registrasi sebagai volunteer
+                value:
+                  email: "volunteer@gmail.com"
+                  password: "volunteer123"
+                  nama_lengkap: "John Volunteer"
+                  telp: "081234567891"
+                  role: "volunteer"
+      responses:
+        "201":
+          description: Akun berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Data registrasi tidak lengkap atau tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    success: false
+                    message: "Data registrasi akun tidak lengkap"
+                    errors: ["Email harus diisi"]
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login akun
+      description: Masuk ke dalam sistem dengan email dan password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: "dermawan@gmail.com"
+              password: "dermawan123"
+      responses:
+        "200":
+          description: Berhasil login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Data login tidak lengkap
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Email atau password tidak sesuai
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: "Email atau password tidak sesuai"
+
+  /auth/verify-token:
+    get:
+      tags:
+        - Authentication
+      summary: Verifikasi token
+      description: Memverifikasi validitas JWT token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyTokenResponse"
+        "401":
+          description: Token tidak valid atau tidak disediakan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                no_token:
+                  summary: Token tidak disediakan
+                  value:
+                    success: false
+                    message: "Token akses diperlukan"
+                invalid_token:
+                  summary: Token tidak valid
+                  value:
+                    success: false
+                    message: "Token tidak valid atau telah kedaluwarsa"
+        "500":
+          description: Error server saat verifikasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Mengirim email reset password ke user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+            example:
+              email: "dermawan@gmail.com"
+      responses:
+        "200":
+          description: Request reset password berhasil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResetPasswordResponse"
+        "400":
+          description: Data input tidak lengkap
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/forgot-password/submit/new-password/{token}:
+    patch:
+      tags:
+        - Authentication
+      summary: Verify reset password
+      description: Mengubah password dengan token reset yang dikirim via email
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token reset password dari email
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewPasswordRequest"
+            example:
+              password: "dermawan001"
+      responses:
+        "200":
+          description: Password berhasil diubah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewPasswordResponse"
+        "400":
+          description: Data input tidak lengkap atau token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/riwayat-token/{id_user}:
+    get:
+      tags:
+        - Token Management
+      summary: Mendapatkan riwayat penggunaan token
+      description: Mengambil riwayat penggunaan token untuk user tertentu (hanya admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_user
+          in: path
+          required: true
+          description: ID user yang akan diambil riwayat tokennya
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil riwayat token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiwayatTokenResponse"
+        "400":
+          description: Parameter tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Tidak memiliki akses (bukan admin)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/profile/update:
+    patch:
+      tags:
+        - Profile Management
+      summary: Update profil user
+      description: Mengubah data profil user (nama, email, telepon)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+            example:
+              nama_lengkap: "Dermawan Saputra Updated"
+              telp: "081234567899"
+              email: "dermawan.updated@gmail.com"
+      responses:
+        "200":
+          description: Profil berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateProfileResponse"
+        "400":
+          description: Data tidak valid atau email sudah digunakan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                email_exists:
+                  summary: Email sudah digunakan
+                  value:
+                    success: false
+                    message: "Email sudah digunakan oleh user lain"
+                invalid_format:
+                  summary: Format tidak valid
+                  value:
+                    success: false
+                    message: "Format email tidak valid"
+                forbidden_fields:
+                  summary: Field terlarang
+                  value:
+                    success: false
+                    message: "Field tidak diizinkan: password, role"
+        "401":
+          description: Token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/profile/update-password:
+    patch:
+      tags:
+        - Profile Management
+      summary: Update password user
+      description: Mengubah password user dengan verifikasi password lama
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequest"
+            example:
+              old_password: "dermawan123"
+              new_password: "dermawan001"
+      responses:
+        "200":
+          description: Password berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdatePasswordResponse"
+        "400":
+          description: Data tidak valid atau password lama salah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                validation_error:
+                  summary: Data tidak lengkap
+                  value:
+                    success: false
+                    message: "Data input tidak valid"
+                    errors: ["Password lama harus diisi", "Password baru harus diisi"]
+                wrong_password:
+                  summary: Password lama salah
+                  value:
+                    success: false
+                    message: "kata sandi lama tidak sesuai"
+        "401":
+          description: Token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: "User tidak ditemukan"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token untuk autentikasi. Format Bearer {token}
+
+  schemas:
+    # Request Schemas
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - nama_lengkap
+        - telp
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email user (harus unik)
+          example: "dermawan@gmail.com"
+        password:
+          type: string
+          minLength: 6
+          description: Password user
+          example: "dermawan123"
+        nama_lengkap:
+          type: string
+          description: Nama lengkap user
+          example: "Dermawan Saputra"
+        telp:
+          type: string
+          pattern: "^[0-9]{10,15}$"
+          description: Nomor telepon user
+          example: "081234567890"
+        role:
+          type: string
+          enum: [user, volunteer, admin]
+          description: Role user dalam sistem
+          example: "user"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email user
+          example: "dermawan@gmail.com"
+        password:
+          type: string
+          description: Password user
+          example: "dermawan123"
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email user yang akan direset passwordnya
+          example: "dermawan@gmail.com"
+
+    NewPasswordRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 6
+          description: Password baru
+          example: "dermawan001"
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        nama_lengkap:
+          type: string
+          description: Nama lengkap user
+          example: "Dermawan Saputra Updated"
+        telp:
+          type: string
+          pattern: "^[0-9]{10,15}$"
+          description: Nomor telepon user
+          example: "081234567899"
+        email:
+          type: string
+          format: email
+          description: Email user
+          example: "dermawan.updated@gmail.com"
+      description: Semua field bersifat opsional. Dapat mengupdate satu atau beberapa field sekaligus.
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+          description: Password lama
+          example: "dermawan123"
+        new_password:
+          type: string
+          minLength: 6
+          description: Password baru
+          example: "dermawan001"
+
+    # Response Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID user
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email user
+          example: "dermawan@gmail.com"
+        nama_lengkap:
+          type: string
+          description: Nama lengkap user
+          example: "Dermawan Saputra"
+        telp:
+          type: string
+          description: Nomor telepon user
+          example: "081234567890"
+        role:
+          type: string
+          enum: [user, volunteer, admin]
+          description: Role user
+          example: "user"
+        created_at:
+          type: string
+          format: date-time
+          description: Waktu pembuatan akun
+          example: "2025-05-20T14:30:00.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Waktu terakhir update
+          example: "2025-05-20T14:30:00.000Z"
+
+    UserWithToken:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            token:
+              type: string
+              description: JWT token untuk autentikasi
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    RegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Akun berhasil dibuat"
+        data:
+          $ref: "#/components/schemas/User"
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Berhasil Login"
+        data:
+          $ref: "#/components/schemas/UserWithToken"
+
+    VerifyTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Token valid"
+        data:
+          $ref: "#/components/schemas/User"
+
+    ResetPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Request ubah password berhasil, silahkan cek email anda"
+        data:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: "dermawan@gmail.com"
+
+    NewPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Berhasil mengganti password"
+        data:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: "dermawan@gmail.com"
+
+    RiwayatToken:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID riwayat token
+          example: 1
+        id_user:
+          type: integer
+          description: ID user
+          example: 1
+        aktivitas:
+          type: string
+          description: Detail aktivitas
+          example: "Create Token"
+        token:
+          type: string
+          description: JWT token yang digunakan
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        created_at:
+          type: string
+          format: date-time
+          description: Waktu pembuatan riwayat
+          example: "2025-05-20T14:30:00.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Waktu terakhir update
+          example: "2025-05-20T14:30:00.000Z"
+
+    RiwayatTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Berhasil mengambil riwayat token"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiwayatToken"
+
+    UpdateProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Profil berhasil diperbarui"
+        data:
+          $ref: "#/components/schemas/User"
+
+    UpdatePasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Password berhasil diperbarui"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Pesan error
+          example: "Terjadi kesalahan"
+        errors:
+          type: array
+          items:
+            type: string
+          description: Detail error (opsional)
+          example: ["Email harus diisi"]
+        error:
+          type: array
+          items:
+            type: string
+          description: Detail error server (opsional)
+          example: ["Terjadi kesalahan pada server"]
+
+tags:
+  - name: Authentication
+    description: Endpoint untuk autentikasi user (register, login, verifikasi token, reset password)
+  - name: Profile Management
+    description: Endpoint untuk mengelola profil user
+  - name: Token Management
+    description: Endpoint untuk mengelola riwayat token (admin only)

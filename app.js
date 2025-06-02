@@ -13,7 +13,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the Auth API." });
+  res.json({ message: "Welcome to the Auth API.", SwaggerDocs: "https://donation-api-auth.vercel.app/api-docs" });
+});
+
+app.get("/api-docs", (req, res) => {
+  res.sendFile(path.join(__dirname, "/docs/index.html"));
+});
+app.get("/swagger.yaml", (req, res) => {
+  res.sendFile(path.join(__dirname, "/docs/swagger.yaml"));
 });
 
 app.use("/auth", authRoutes);
