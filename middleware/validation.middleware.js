@@ -69,7 +69,7 @@ const verifyForgotPasswordSchema = Joi.object({
     .messages({
       "string.empty": "Password harus diisi",
       "string.min": "Password minimal 6 karakter",
-      "string.max": "Password maksimal 255 karakter",
+      "string.max": "Password maksimal 100 karakter",
       "string.pattern.base": "Password harus mengandung minimal 1 simbol",
       "any.required": "Password harus diisi",
     }),
