@@ -227,7 +227,6 @@ class AuthController {
         order: [["created_at", "DESC"]],
       });
       if (existingToken) {
-        // Jika ada, cek apakah token masih valid (misalnya 15 menit)
         const codeAge = Date.now() - new Date(existingToken.created_at).getTime();
         const fifteenMinutes = 15 * 60 * 1000; // 15 menit
         if (codeAge < fifteenMinutes) {
@@ -238,18 +237,17 @@ class AuthController {
         }
       }
 
-      // Generate unique code untuk reset password
+      // Generate unique code
       const resetCode = crypto.randomBytes(32).toString("hex");
 
-      // Simpan code ke riwayat token (bisa juga buat tabel terpisah)
       await RiwayatToken.create({
         id_user: user.id,
         aktivitas: `Forgot Password - Reset Password Code`,
         token: resetCode,
       });
 
-      const resetLink = `${process.env.RESET_URL}/forgot-password/submit/new-password/${resetCode}`;
       // Kirim email dengan link reset password
+      const resetLink = `${process.env.RESET_URL}/forgot-password/submit/new-password/${resetCode}`;
       await sendEmail({
         to: user.email,
         subject: "Permintaan Ubah Password",
@@ -318,7 +316,6 @@ class AuthController {
         });
       }
 
-      // Cek apakah code masih valid (misalnya 1 jam)
       const codeAge = Date.now() - new Date(tokenHistory.created_at).getTime();
       const fifteenMinutes = 15 * 60 * 1000; // 15 menit
 
