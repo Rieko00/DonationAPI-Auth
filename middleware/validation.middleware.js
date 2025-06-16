@@ -61,12 +61,18 @@ const forgotPasswordSchema = Joi.object({
 
 // Schema validasi untuk verify forgot password
 const verifyForgotPasswordSchema = Joi.object({
-  password: Joi.string().min(6).max(255).required().messages({
-    "string.empty": "Password harus diisi",
-    "string.min": "Password minimal 6 karakter",
-    "string.max": "Password maksimal 255 karakter",
-    "any.required": "Password harus diisi",
-  }),
+  password: Joi.string()
+    .min(6)
+    .max(100)
+    .pattern(/^(?=.*[!@#$%^&*(),.?":{}|<>]).*$/)
+    .required()
+    .messages({
+      "string.empty": "Password harus diisi",
+      "string.min": "Password minimal 6 karakter",
+      "string.max": "Password maksimal 255 karakter",
+      "string.pattern.base": "Password harus mengandung minimal 1 simbol",
+      "any.required": "Password harus diisi",
+    }),
 });
 
 const verifyChangePasswordSchema = Joi.object({
@@ -159,12 +165,11 @@ const validateUpdateProfileScema = Joi.object({
       "string.max": "Nomor telepon maksimal 15 digit",
       "any.required": "Nomor telepon harus diisi",
     }),
-    
 })
-.or('email', 'nama_lengkap', 'telp') // <-- Key addition here
-.messages({
-  "object.missing": "Minimal harus ada satu data yang diubah (email, nama lengkap, atau telepon)",
-});
+  .or("email", "nama_lengkap", "telp") // <-- Key addition here
+  .messages({
+    "object.missing": "Minimal harus ada satu data yang diubah (email, nama lengkap, atau telepon)",
+  });
 
 // Middleware untuk validasi
 const validate = (schema) => {
@@ -282,5 +287,5 @@ module.exports = {
   validateIdParam: validateParams(idParamSchema),
   validateCodeQuery: validateQuery(codeQuerySchema),
   validateVerifyChangePassword: validate(verifyChangePasswordSchema),
-  validateUpdateProfile: validate(validateUpdateProfileScema)
+  validateUpdateProfile: validate(validateUpdateProfileScema),
 };
