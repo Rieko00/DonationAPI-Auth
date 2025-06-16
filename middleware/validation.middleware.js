@@ -135,6 +135,37 @@ const updateUserSchema = Joi.object({
     "object.min": "Minimal satu field harus diisi untuk update",
   });
 
+const validateUpdateProfileScema = Joi.object({
+  email: Joi.string().email({ minDomainSegments: 2 }).max(100).messages({
+    "string.empty": "Email harus diisi",
+    "string.email": "Format email tidak valid",
+    "string.max": "Email maksimal 100 karakter",
+    "any.required": "Email harus diisi",
+  }),
+  nama_lengkap: Joi.string().min(2).max(100).messages({
+    "string.empty": "Nama lengkap harus diisi",
+    "string.min": "Nama lengkap minimal 2 karakter",
+    "string.max": "Nama lengkap maksimal 100 karakter",
+    "any.required": "Nama lengkap harus diisi",
+  }),
+  telp: Joi.string()
+    .pattern(/^[0-9+\-\s]+$/)
+    .min(10)
+    .max(15)
+    .messages({
+      "string.empty": "Nomor telepon harus diisi",
+      "string.pattern.base": "Format nomor telepon tidak valid",
+      "string.min": "Nomor telepon minimal 10 digit",
+      "string.max": "Nomor telepon maksimal 15 digit",
+      "any.required": "Nomor telepon harus diisi",
+    }),
+    
+})
+.or('email', 'nama_lengkap', 'telp') // <-- Key addition here
+.messages({
+  "object.missing": "Minimal harus ada satu data yang diubah (email, nama lengkap, atau telepon)",
+});
+
 // Middleware untuk validasi
 const validate = (schema) => {
   return (req, res, next) => {
@@ -234,6 +265,7 @@ module.exports = {
   idParamSchema,
   codeQuerySchema,
   verifyChangePasswordSchema,
+  validateUpdateProfileScema,
 
   // Middleware exports
   validate,
@@ -250,4 +282,5 @@ module.exports = {
   validateIdParam: validateParams(idParamSchema),
   validateCodeQuery: validateQuery(codeQuerySchema),
   validateVerifyChangePassword: validate(verifyChangePasswordSchema),
+  validateUpdateProfile: validate(validateUpdateProfileScema)
 };

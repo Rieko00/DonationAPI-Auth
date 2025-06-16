@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const profileController = require("../controllers/profile.controller");
-const { validateRegister, validateLogin, validateForgotPassword, validateVerifyForgotPassword, validateRiwayatToken, validateVerifyChangePassword } = require("../middleware/validation.middleware");
-const { authenticateToken, validateUpdateProfile, authorizeRoles } = require("../middleware/auth.middleware");
+const { validateRegister, validateLogin, validateForgotPassword, validateVerifyForgotPassword, validateRiwayatToken, validateVerifyChangePassword, validateUpdateProfile } = require("../middleware/validation.middleware");
+const { authenticateToken, authorizeRoles } = require("../middleware/auth.middleware")
 
 // Auth routes
 router.post("/register", validateRegister, authController.register);
