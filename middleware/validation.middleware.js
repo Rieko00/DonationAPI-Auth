@@ -64,7 +64,7 @@ const verifyForgotPasswordSchema = Joi.object({
   password: Joi.string()
     .min(6)
     .max(100)
-    .pattern(/^(?=.*[!@#$%^&*(),.?":{}|<>]).*$/)
+    // .pattern(/^(?=.*[!@#$%^&*(),.?":{}|<>]).*$/)
     .required()
     .messages({
       "string.empty": "Password harus diisi",
