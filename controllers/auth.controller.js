@@ -506,8 +506,7 @@ class AuthController {
       const { id_user } = req.user.id;
       return res.status(401).json({
         success: false,
-        message: "Anda tidak memiliki akses untuk melihat riwayat token ini",
-        data: id_user,
+        message: "Anda tidak memiliki akses untuk melihat riwayat token ini".id_user,
       });
       const user = await User.findByPk(id_user);
       if (!user) {
