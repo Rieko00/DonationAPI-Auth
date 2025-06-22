@@ -110,7 +110,6 @@ class AuthController {
       });
       // Jika ada token sebelumnya pakai token yang sama
       if (checkToken) {
-        // Cek apakah token masih valid (misalnya 1 jam)
         const decodedToken = verifyToken(checkToken.token);
         if (!decodedToken) {
           const newToken = generateToken({

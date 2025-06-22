@@ -296,18 +296,9 @@ Authorization: Bearer {token}
 #### 6. Mendapatkan Riwayat penggunaan Token
 
 - **Method:** GET
-- **Path:** `/auth/riwayat-token`
+- **Path:** `/auth/riwayat-token/{id_user}`
 - **Content-Type:** application/json
-
-##### Request Body
-
-```json
-{
-  "id_user": "{id_user}",
-  "aktivitas": "Create Token",
-  "token": "JWTTOKEN"
-}
-```
+- **Authorization:** Bearer Token (Required)
 
 ##### Response Success
 
@@ -317,14 +308,31 @@ Authorization: Bearer {token}
 ```json
 {
   "success": true,
-  "message": "Berhasil mengganti password",
-  "data": {
-    "email": "dermawan@gmail.com"
-  }
+  "message": "Riwayat token berhasil diambil",
+  "data": [
+    {
+      "id": 3826,
+      "id_user": 3,
+      "aktivitas": "Login - Create Token",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJrbmVuZWR5MTJAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NTA1Njc2ODQsImV4cCI6MTc1MTE3MjQ4NH0.dvxgjp0dK9DEAInEe3PnfhKGMdJdL6R98JbwGyG0vxg",
+      "created_at": "2025-06-22T04:48:04.000Z",
+      "updated_at": "2025-06-22T04:48:04.000Z"
+    }
+  ]
 }
 ```
 
 ##### Response Error
+
+- **Status Code:** 403 Unauthorized
+- **Content-Type:** application/json
+
+```json
+{
+  "success": false,
+  "message": "Tidak memiliki izin untuk mengakses resource ini"
+}
+```
 
 - **Status Code:** 400 Bad Request
 - **Content-Type:** application/json
