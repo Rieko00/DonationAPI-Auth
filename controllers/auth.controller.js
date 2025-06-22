@@ -502,14 +502,13 @@ class AuthController {
   }
 
   static async getRiwayatToken(req, res) {
-    return res.status(403).json({
-      success: false,
-      message: "Akses tidak diizinkan",
-      data: req.user,
-    });
     try {
       const { id_user } = req.user.id;
-
+      return res.status(401).json({
+        success: false,
+        message: "Anda tidak memiliki akses untuk melihat riwayat token ini",
+        data: id_user,
+      });
       const user = await User.findByPk(id_user);
       if (!user) {
         return res.status(404).json({
