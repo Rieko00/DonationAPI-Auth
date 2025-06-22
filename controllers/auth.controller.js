@@ -505,13 +505,6 @@ class AuthController {
     try {
       const { id_user } = req.user.id;
 
-      if (!id_user) {
-        return res.status(401).json({
-          success: false,
-          message: "Token akses diperlukan",
-        });
-      }
-
       const user = await User.findByPk(id_user);
       if (!user) {
         return res.status(404).json({
