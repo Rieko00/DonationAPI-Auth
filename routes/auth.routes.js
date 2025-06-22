@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const profileController = require("../controllers/profile.controller");
 const { validateRegister, validateLogin, validateForgotPassword, validateVerifyForgotPassword, validateRiwayatToken, validateVerifyChangePassword, validateUpdateProfile } = require("../middleware/validation.middleware");
-const { authenticateToken, authorizeRoles } = require("../middleware/auth.middleware")
+const { authenticateToken, authorizeRoles } = require("../middleware/auth.middleware");
 
 // Auth routes
 router.post("/register", validateRegister, authController.register);
@@ -15,6 +15,6 @@ router.patch("/profile/update", authenticateToken, validateUpdateProfile, profil
 router.patch("/profile/update-password", authenticateToken, validateVerifyChangePassword, profileController.updatePassword);
 
 // Token routes
-router.get("/riwayat-token/:id_user", authenticateToken, authorizeRoles("admin"), authController.getRiwayatToken);
+router.get("/riwayat-token/", authenticateToken, authController.getRiwayatToken);
 
 module.exports = router;

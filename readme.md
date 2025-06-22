@@ -334,14 +334,13 @@ Authorization: Bearer {token}
 }
 ```
 
-- **Status Code:** 400 Bad Request
+- **Status Code:** 401 Unauthorized
 - **Content-Type:** application/json
 
 ```json
 {
   "success": false,
-  "message": "Data input tidak lengkap",
-  "errors": ["id_user harus diisi harus diisi"]
+  "message": "Token akses diperlukan"
 }
 ```
 

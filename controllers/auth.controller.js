@@ -503,16 +503,12 @@ class AuthController {
 
   static async getRiwayatToken(req, res) {
     try {
-      const { id_user } = req.params;
+      const { id_user } = req.user.id;
 
       if (!id_user) {
-        const riwayatTokens = await RiwayatToken.findAll({
-          order: [["created_at", "DESC"]],
-        });
-        return res.status(200).json({
-          success: true,
-          message: "Riwayat token berhasil diambil",
-          data: riwayatTokens,
+        return res.status(401).json({
+          success: false,
+          message: "Token akses diperlukan",
         });
       }
 
