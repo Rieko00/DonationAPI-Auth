@@ -502,6 +502,11 @@ class AuthController {
   }
 
   static async getRiwayatToken(req, res) {
+    return res.status(403).json({
+      success: false,
+      message: "Akses tidak diizinkan",
+      data: req.user,
+    });
     try {
       const { id_user } = req.user.id;
 
