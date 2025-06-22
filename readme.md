@@ -296,7 +296,7 @@ Authorization: Bearer {token}
 #### 6. Mendapatkan Riwayat penggunaan Token
 
 - **Method:** GET
-- **Path:** `/auth/riwayat-token/{id_user}`
+- **Path:** `/auth/riwayat-token`
 - **Content-Type:** application/json
 - **Authorization:** Bearer Token (Required)
 
