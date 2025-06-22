@@ -503,11 +503,7 @@ class AuthController {
 
   static async getRiwayatToken(req, res) {
     try {
-      const { id_user } = req.user.id;
-      return res.status(401).json({
-        success: false,
-        message: "Anda tidak memiliki akses untuk melihat riwayat token ini".id_user,
-      });
+      const id_user = req.user.id;
       const user = await User.findByPk(id_user);
       if (!user) {
         return res.status(404).json({
